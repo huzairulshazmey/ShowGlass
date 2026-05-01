@@ -1,0 +1,23 @@
+{
+  "name": "showglass",
+  "version": "1.0.0",
+  "description": "Showglass — App Store screenshot studio with backgrounds, mockups, and AI translation",
+  "author": {
+    "name": "Showglass"
+  },
+  "license": "MIT",
+  "homepage": "https://github.com/huzairulshazmey/showglass#readme",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/huzairulshazmey/showglass.git"
+  },
+  "scripts": {
+    "serve": "python3 -m http.server 8000",
+    "tauri": "tauri",
+    "tauri:dev": "tauri dev",
+    "tauri:build": "tauri build"
+  },
+  "devDependencies": {
+    "@tauri-apps/cli": "^2"
+  }
+}
