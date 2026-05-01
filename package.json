@@ -6,10 +6,10 @@
     "name": "Showglass"
   },
   "license": "MIT",
-  "homepage": "https://github.com/huzairulshazmey/showglass#readme",
+  "homepage": "https://show-glass.vercel.app/",
   "repository": {
     "type": "git",
-    "url": "https://github.com/huzairulshazmey/showglass.git"
+    "url": "https://github.com/huzairulshazmey/ShowGlass.git"
   },
   "scripts": {
     "serve": "python3 -m http.server 8000",

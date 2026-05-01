@@ -123,19 +123,19 @@ pub fn run() {
                     // Help links open directly in system browser
                     "documentation" => {
                         let _ = tauri_plugin_opener::open_url(
-                            "https://github.com/huzairulshazmey/showglass",
+                            "https://github.com/huzairulshazmey/ShowGlass",
                             None::<&str>,
                         );
                     }
                     "report-issue" => {
                         let _ = tauri_plugin_opener::open_url(
-                            "https://github.com/huzairulshazmey/showglass/issues",
+                            "https://github.com/huzairulshazmey/ShowGlass/issues",
                             None::<&str>,
                         );
                     }
                     "visit-website" => {
                         let _ = tauri_plugin_opener::open_url(
-                            "https://github.com/huzairulshazmey/showglass",
+                            "https://github.com/huzairulshazmey/ShowGlass",
                             None::<&str>,
                         );
                     }

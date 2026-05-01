@@ -1,8 +1,8 @@
 # Showglass
 
-**Showglass** is a free, open-source **App Store screenshot studio**—beautiful marketing frames with customizable backgrounds, text overlays, 3D device mockups, and AI-assisted translations. Everything runs in your **browser**; nothing to install.
+**Showglass** is a free, open-source **App Store screenshot studio**—beautiful marketing frames with customizable backgrounds, text overlays, 3D device mockups, and AI-assisted translations. Everything runs in your **browser**; nothing to install. **Live app:** hosted on [Vercel](https://vercel.com/).
 
-> **Repository:** [`github.com/huzairulshazmey/showglass`](https://github.com/huzairulshazmey/showglass) — update the username in URLs if your GitHub account differs.
+> **Repository:** [`github.com/huzairulshazmey/ShowGlass`](https://github.com/huzairulshazmey/ShowGlass)
 
 [![License: MIT](https://img.shields.io/badge/license-MIT-blue.svg)](LICENSE)
 
@@ -51,7 +51,7 @@
 
 Open the app in your browser:
 
-**[huzairulshazmey.github.io/showglass](https://huzairulshazmey.github.io/showglass/)**
+**[show-glass.vercel.app](https://show-glass.vercel.app/)**
 
 ## Data & privacy
 
