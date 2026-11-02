@@ -15,8 +15,9 @@ const state = {
             gradient: {
                 angle: 135,
                 stops: [
-                    { color: '#667eea', position: 0 },
-                    { color: '#764ba2', position: 100 }
+                    { color: '#1a0533', position: 0 },
+                    { color: '#5b21b6', position: 50 },
+                    { color: '#06b6d4', position: 100 }
                 ]
             },
             solid: '#1a1a2e',
@@ -1326,7 +1327,13 @@ const PROJECTS_STORE = 'projects';
 const META_STORE = 'meta';
 
 let currentProjectId = 'default';
-let projects = [{ id: 'default', name: 'Default Project', screenshotCount: 0 }];
+const SAMPLE_PROJECT_NAME = 'Showglass Launch Kit';
+const SAMPLE_HEADLINES = [
+    'Your app, in its best light',
+    'Pick a look in seconds',
+    'Export, ready for the store'
+];
+let projects = [{ id: 'default', name: SAMPLE_PROJECT_NAME, screenshotCount: 0 }];
 
 function openDatabase() {
     return new Promise((resolve, reject) => {
@@ -1456,12 +1463,51 @@ function updateProjectSelector() {
     });
 }
 
+// First open (or an untouched project from an older visit): fill the canvas with
+// three blank screens carrying short headlines so there is a finished frame to
+// look at and export. Nothing is seeded once a project has screenshots or a custom name.
+function seedSampleProjectIfFresh() {
+    if (state.screenshots.length > 0) return;
+    if (projects.length !== 1 || projects[0].id !== 'default') return;
+    if (projects[0].name !== SAMPLE_PROJECT_NAME && projects[0].name !== 'Default Project') return;
+
+    projects[0].name = SAMPLE_PROJECT_NAME;
+    // An older untouched visit may have saved the previous default look; replace it.
+    state.defaults.background.type = 'gradient';
+    state.defaults.background.gradient = {
+        angle: 135,
+        stops: [
+            { color: '#1a0533', position: 0 },
+            { color: '#5b21b6', position: 50 },
+            { color: '#06b6d4', position: 100 }
+        ]
+    };
+    SAMPLE_HEADLINES.forEach((headline, i) => {
+        createNewScreenshot(null, null, `Sample ${i + 1}`, null, 'iPhone');
+        const shot = state.screenshots[state.screenshots.length - 1];
+        shot.text.headlines = { en: headline };
+        shot.text.headlineSize = 120;
+        // Arial is an existing system preset with a sans-serif fallback on every OS
+        shot.text.headlineFont = "Arial, sans-serif";
+        shot.text.position = 'bottom';
+        shot.text.offsetY = 45;
+        const lang = getTextLanguageSettings(shot.text, 'en');
+        lang.headlineSize = 120;
+        lang.position = 'bottom';
+        lang.offsetY = 45;
+    });
+    state.selectedIndex = 0;
+    updateScreenshotList();
+    updateProjectSelector();
+}
+
 // Initialize
 async function init() {
     try {
         await openDatabase();
         await loadProjectsMeta();
         await loadState();
+        seedSampleProjectIfFresh();
         syncUIWithState();
         updateCanvas();
     } catch (e) {
@@ -1855,8 +1901,9 @@ function resetStateToDefaults() {
             gradient: {
                 angle: 135,
                 stops: [
-                    { color: '#667eea', position: 0 },
-                    { color: '#764ba2', position: 100 }
+                    { color: '#1a0533', position: 0 },
+                    { color: '#5b21b6', position: 50 },
+                    { color: '#06b6d4', position: 100 }
                 ]
             },
             solid: '#1a1a2e',
@@ -6723,6 +6770,38 @@ function getCanvasDimensions() {
     return deviceDimensions[state.outputDevice];
 }
 
+// Preview scale: up to 400x700, shrunk to fit the canvas area on small screens/windows
+function getPreviewScale(dims) {
+    let maxW = 400;
+    let maxH = 700;
+    const area = document.querySelector('.canvas-area');
+    if (area && area.clientWidth > 0 && area.clientHeight > 0) {
+        const cs = getComputedStyle(area);
+        const padX = (parseFloat(cs.paddingLeft) || 0) + (parseFloat(cs.paddingRight) || 0);
+        const padY = (parseFloat(cs.paddingTop) || 0) + (parseFloat(cs.paddingBottom) || 0);
+        const innerW = Math.max(0, area.clientWidth - padX);
+        const innerH = Math.max(0, area.clientHeight - padY);
+        // Three full frames only fit in a very wide canvas. Otherwise one frame, no clipped neighbour.
+        const neighborsFit = innerW >= 980;
+        area.classList.toggle('solo-frame', !neighborsFit);
+        maxW = Math.min(400, neighborsFit ? (innerW - 24) / 3 : innerW);
+        maxH = Math.min(700, innerH);
+        maxW = Math.max(120, maxW);
+        maxH = Math.max(160, maxH);
+    }
+    return Math.min(maxW / dims.width, maxH / dims.height);
+}
+
+// Re-fit the preview when the window or device orientation changes
+let resizeFrame = null;
+window.addEventListener('resize', () => {
+    if (resizeFrame) cancelAnimationFrame(resizeFrame);
+    resizeFrame = requestAnimationFrame(() => {
+        resizeFrame = null;
+        if (!isSliding) updateCanvas();
+    });
+});
+
 function updateCanvas() {
     saveState(); // Persist state on every update
     const dims = getCanvasDimensions();
@@ -6730,9 +6809,7 @@ function updateCanvas() {
     canvas.height = dims.height;
 
     // Scale for preview
-    const maxPreviewWidth = 400;
-    const maxPreviewHeight = 700;
-    const scale = Math.min(maxPreviewWidth / dims.width, maxPreviewHeight / dims.height);
+    const scale = getPreviewScale(dims);
     canvas.style.width = (dims.width * scale) + 'px';
     canvas.style.height = (dims.height * scale) + 'px';
 
@@ -6784,9 +6861,7 @@ function updateCanvas() {
 function updateSidePreviews() {
     const dims = getCanvasDimensions();
     // Same scale as main preview
-    const maxPreviewWidth = 400;
-    const maxPreviewHeight = 700;
-    const previewScale = Math.min(maxPreviewWidth / dims.width, maxPreviewHeight / dims.height);
+    const previewScale = getPreviewScale(dims);
 
     // Initialize Three.js if any screenshot uses 3D mode (needed for side previews)
     const any3D = state.screenshots.some(s => s.screenshot?.use3D);
@@ -6874,9 +6949,7 @@ function slideToScreenshot(newIndex, direction) {
     previewStrip.classList.add('sliding');
 
     const dims = getCanvasDimensions();
-    const maxPreviewWidth = 400;
-    const maxPreviewHeight = 700;
-    const previewScale = Math.min(maxPreviewWidth / dims.width, maxPreviewHeight / dims.height);
+    const previewScale = getPreviewScale(dims);
     const slideDistance = dims.width * previewScale + 10; // canvas width + gap
 
     const newPrevIndex = newIndex - 1;

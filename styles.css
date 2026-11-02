@@ -129,7 +129,8 @@ html.tauri-app .right-sidebar {
 
 .app-container {
     display: grid;
-    grid-template-columns: 320px 1fr 340px;
+    grid-template-columns: 320px minmax(0, 1fr) 340px;
+    grid-template-rows: minmax(0, 1fr);
     min-height: 100vh;
     max-height: 100vh;
 }
@@ -883,6 +884,10 @@ input[type="range"]::-webkit-slider-thumb {
     background: var(--bg-primary);
     overflow: hidden;
     position: relative;
+}
+
+.canvas-area.solo-frame .side-preview {
+    display: none;
 }
 
 .preview-strip {
@@ -3526,4 +3531,155 @@ input[type="range"]::-webkit-slider-thumb {
 .element-item-thumb .emoji-thumb {
     font-size: 18px;
     line-height: 1;
+}
+
+/* ===== Responsive: stack panels below the canvas on narrow screens ===== */
+@media (max-width: 1100px) {
+    html, body {
+        height: auto;
+        overflow-x: hidden;
+        overflow-y: auto;
+    }
+
+    body {
+        min-height: 100vh;
+    }
+
+    .app-container {
+        display: flex;
+        flex-direction: column;
+        min-height: 100vh;
+        max-height: none;
+    }
+
+    /* Canvas first, so the frame is the first thing on screen */
+    .canvas-area {
+        order: 1;
+        flex: none;
+        height: min(68vh, 560px);
+        padding: 20px 16px 12px;
+        overflow: hidden;
+    }
+
+    .screenshot-list {
+        flex-direction: row;
+        gap: 8px;
+        overflow-x: auto;
+        padding-bottom: 4px;
+    }
+
+    .screenshot-item {
+        flex: 0 0 196px;
+    }
+
+    .sidebar h2 {
+        margin: 2px 0 8px;
+    }
+
+    .sidebar-add-buttons {
+        flex-wrap: wrap;
+    }
+
+    .add-btn {
+        flex: 1 1 140px;
+    }
+
+    .project-buttons {
+        flex-shrink: 0;
+    }
+
+    .project-dropdown {
+        min-width: 0;
+    }
+
+    /* Flatten the left panel so Export can sit right under the canvas */
+    .sidebar:not(.sidebar-right) {
+        display: contents;
+    }
+
+    .sidebar:not(.sidebar-right) > .sidebar-footer {
+        order: 2;
+        background: var(--bg-secondary);
+        border-bottom: 1px solid var(--border-color);
+    }
+
+    .sidebar:not(.sidebar-right) > .sidebar-content {
+        order: 3;
+        flex: none;
+        overflow: visible;
+        padding-bottom: 12px;
+        background: var(--bg-secondary);
+    }
+
+    .sidebar:not(.sidebar-right) > .sidebar-add-buttons {
+        order: 4;
+        background: var(--bg-secondary);
+    }
+
+    .sidebar.sidebar-right {
+        order: 5;
+        max-height: none;
+        border-left: none;
+        border-top: 1px solid var(--border-color);
+    }
+
+    .sidebar-right .sidebar-content {
+        flex: none;
+        overflow: visible;
+    }
+
+    /* Comfortable tap targets */
+    .project-btn,
+    .settings-btn,
+    .language-btn,
+    .add-btn,
+    .export-btn,
+    .project-trigger,
+    .output-size-trigger,
+    .sidebar-right .sidebar-header .tab {
+        min-height: 44px;
+    }
+
+    .project-btn,
+    .settings-btn,
+    .language-btn {
+        min-width: 44px;
+    }
+
+    .screenshot-menu-btn {
+        min-width: 44px;
+        min-height: 44px;
+    }
+
+    .btn-group button,
+    .preset-dropdown-trigger,
+    .add-stop-btn {
+        min-height: 40px;
+    }
+
+    .slider-reset-btn,
+    .gradient-stop .screenshot-delete {
+        min-width: 36px;
+        min-height: 36px;
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+    }
+}
+
+@media (max-width: 480px) {
+    .sidebar-content,
+    .sidebar-footer,
+    .sidebar-add-buttons {
+        padding-left: 16px;
+        padding-right: 16px;
+    }
+
+    .sidebar-right .sidebar-content {
+        padding: 12px;
+    }
+
+    #threejs-container {
+        max-width: 100%;
+    }
 }
